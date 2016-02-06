@@ -14,25 +14,34 @@ power_data <- read.table("household_power_consumption.txt",
 # Printing head of the dataframe
 print(head(power_data))
 
-# Formating the date columns into Date format
-power_data$Date <- as.Date(power_data$Date, format="%d/%m/%Y")
+# Changing the class type of Date and Time columns to 
+# paste the strings together for the timestamp below
+power_data$Date <- as.character(power_data$Date)
+power_data$Time <- as.character(power_data$Time)
+
+# Adding a new column to the power_data dataframe with the
+# timestamp. This is down by pasting the strings in the 
+# Date and Time columns together in the format shown below.
+power_data$timestamp <- as.POSIXct(paste(power_data$Date,power_data$Time, sep=" "),
+                                 format="%d/%m/%Y %H:%M:%S")
 
 # Defining the start and end dates for subsetting the date
-start_date <- as.Date("01/02/2007", format="%d/%m/%Y")
-end_date <- as.Date("02/02/2007", format="%d/%m/%Y")
+start_date <- as.POSIXct("01/02/2007 00:00:00", 
+                       format="%d/%m/%Y %H:%M:%S")
+end_date <- as.POSIXct("02/02/2007 23:59:59", 
+                     format="%d/%m/%Y %H:%M:%S")
 
 # Subset of global active power between start date and end date
 gac_subs <- subset(power_data$Global_active_power, 
-                   power_data$Date>=start_date & power_data$Date<=end_date)
+                   power_data$timestamp>=start_date & power_data$timestamp<=end_date)
 
-# Plotting the subset of the Global_active_power we are interested in as
-# a histogram and saving the plot to a png file
+# Subset of global active power between start date and end date
+timestamp_subs <- subset(power_data$timestamp, 
+                        power_data$timestamp>=start_date & power_data$timestamp<=end_date)
 
-#png(filename="plot2.png", width=480, height=480)
-#hist(gac_subs, col = "red", 
-#     xlab=NULL, ylab=NULL,main=NULL)
-#title(xlab = "Global Active Power (kilowatts)",
-#      ylab = "Frequency",
-#      main = "Global Active Power")
-#dev.off()
+# Plotting the subset of the Global_active_power we are interested in
+png(filename="plot2.png", width=480, height=480)
+plot(timestamp_subs, gac_subs, col = "black", type= "l", 
+     xlab="", ylab="Global Active Power (kilowatts)", main=NULL)
+dev.off()
 
